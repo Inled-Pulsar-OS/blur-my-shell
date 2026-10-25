@@ -6,9 +6,20 @@ const POPUP_STYLE_CLASSES = ['popup-menu', 'quick-toggle-menu-container', 'candi
 const POPUP_TARGET_STYLE_CLASSES = [
     'popup-menu-content', 'quick-settings', 'quick-toggle-menu', 'notification-banner',
     'candidate-popup-content', 'screenshot-ui-panel', 'bms-keyboard-surface',
+    'mac-tile', 'mac-slider-tile', 'mac-circle', 'mac-media', 'mac-cc-detail',
+    'mac-nc-card', 'mac-nc-notif-card', 'mac-nc-more-notifs-btn', 'quick-toggle',
 ];
 const POPUP_CHILD_STYLE_CLASSES = ['osd-window', 'resize-popup', 'switcher-list', 'workspace-switcher', 'modal-dialog', 'run-dialog', 'clipboard-dialog'];
-const POPUP_DESCENDANT_TARGET_STYLE_CLASSES = ['switcher-list'];
+const POPUP_DESCENDANT_TARGET_STYLE_CLASSES = [
+    'switcher-list',
+    'mac-cc-quick-settings',
+    'mac-nc-datemenu',
+    'mac-cc',
+    'mac-nc-sidebar',
+    'mac-nc-content',
+    'quick-settings',
+    'datemenu-popover',
+];
 
 export const POPUP_BACKGROUND_STYLES = ['bms-popup-background-transparent', 'bms-popup-background-light', 'bms-popup-background-dark'];
 export const POPUP_SURFACE_STYLES = POPUP_BACKGROUND_STYLES.map(
@@ -19,7 +30,7 @@ export const POPUP_CORNER_RADII = [
     {
         key: 'quick-settings-corner-radius',
         property: 'QUICK_SETTINGS_CORNER_RADIUS',
-        style_classes: ['quick-settings', 'screenshot-ui-panel'],
+        style_classes: ['mac-tile', 'mac-slider-tile', 'mac-circle', 'mac-media', 'mac-cc-detail', 'mac-nc-card', 'quick-settings', 'screenshot-ui-panel'],
     },
     {
         key: 'submenu-corner-radius',
@@ -34,7 +45,7 @@ export const POPUP_CORNER_RADII = [
     {
         key: 'notification-corner-radius',
         property: 'NOTIFICATION_CORNER_RADIUS',
-        style_classes: ['notification-banner', 'message', 'message-view', 'message-list'],
+        style_classes: ['mac-nc-notif-card', 'mac-nc-more-notifs-btn', 'notification-banner', 'message', 'message-view', 'message-list'],
     },
     {
         key: 'candidate-corner-radius',
@@ -87,14 +98,14 @@ export const PopupBlurTargets = class PopupBlurTargets {
 
     find_actor(actor) {
         const targets = new Set();
+        const box = actor._delegate?.box;
 
-        if (this.prefers_descendant_targets(actor)) {
-            this.find_target_children(actor, targets);
+        if (this.prefers_descendant_targets(actor) || this.prefers_descendant_targets(box)) {
+            this.find_target_children(box ?? actor, targets);
             if (targets.size > 0)
                 return targets;
         }
 
-        const box = actor._delegate?.box;
         if (this.has_any_style_class(box, POPUP_TARGET_STYLE_CLASSES))
             targets.add(box);
 
@@ -169,7 +180,8 @@ export const PopupBlurTargets = class PopupBlurTargets {
     get_corner_radius(target, root_actor) {
         return POPUP_CORNER_RADII.find(radius =>
             has_any_style_class(target, radius.style_classes)
-            || has_any_style_class(root_actor, radius.style_classes)
+        ) ?? POPUP_CORNER_RADII.find(radius =>
+            has_any_style_class(root_actor, radius.style_classes)
         ) ?? DEFAULT_CORNER_RADIUS;
     }
 
