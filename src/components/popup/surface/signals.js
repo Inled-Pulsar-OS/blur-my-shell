@@ -63,6 +63,43 @@ export const PopupBlurSurfaceSignals = class PopupBlurSurfaceSignals {
             signal,
             () => this.on_actor_changed(actor, signal, is_heavy_surface)
         ));
+
+        // Connect scrollable containers and their adjustments
+        const vadj = actor.vadjustment ?? (actor.get_vscroll_bar?.()?.get_adjustment?.());
+        const hadj = actor.hadjustment ?? (actor.get_hscroll_bar?.()?.get_adjustment?.());
+        if (vadj && !this.connected_actors.has(vadj)) {
+            this.connected_actors.add(vadj);
+            this.connections.connect(
+                vadj,
+                'notify::value',
+                () => this.on_actor_changed(actor, 'notify::value', true)
+            );
+            this.connections.connect(
+                vadj,
+                'changed',
+                () => this.on_actor_changed(actor, 'notify::value', true)
+            );
+        }
+        if (hadj && !this.connected_actors.has(hadj)) {
+            this.connected_actors.add(hadj);
+            this.connections.connect(
+                hadj,
+                'notify::value',
+                () => this.on_actor_changed(actor, 'notify::value', true)
+            );
+            this.connections.connect(
+                hadj,
+                'changed',
+                () => this.on_actor_changed(actor, 'notify::value', true)
+            );
+        }
+        if (actor instanceof St.ScrollView) {
+            this.connections.connect(
+                actor,
+                'scroll-event',
+                () => this.on_actor_changed(actor, 'notify::value', true)
+            );
+        }
     }
 
     connect_ancestors(actor) {
@@ -82,7 +119,7 @@ export const PopupBlurSurfaceSignals = class PopupBlurSurfaceSignals {
             return;
         }
 
-        if (is_visibility_change || is_heavy_surface || ANIMATION_SIGNALS.has(signal)) {
+        if (is_visibility_change || is_heavy_surface || ANIMATION_SIGNALS.has(signal) || signal === 'notify::value') {
             this.remove_idle_update();
             this.surface.queue_update();
             return;

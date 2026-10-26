@@ -77,10 +77,10 @@ export const PopupBlurSurfacePlacement = class PopupBlurSurfacePlacement {
 
     get_target_rect(geometry) {
         return {
-            x: geometry.target_x,
-            y: geometry.target_y,
-            width: geometry.target_width,
-            height: geometry.target_height,
+            x: geometry.target_x ?? geometry.x,
+            y: geometry.target_y ?? geometry.y,
+            width: geometry.target_width ?? geometry.width,
+            height: geometry.target_height ?? geometry.height,
         };
     }
 
@@ -116,7 +116,7 @@ export const PopupBlurSurfacePlacement = class PopupBlurSurfacePlacement {
 
         this.monitor_index = match.monitor_index;
 
-        const surface_geometry = this.create_surface_geometry(rect);
+        const surface_geometry = this.create_surface_geometry(match.intersection);
         surface_geometry.monitor_index = match.monitor_index;
         return surface_geometry;
     }

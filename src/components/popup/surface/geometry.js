@@ -43,10 +43,22 @@ export const PopupBlurSurfaceGeometry = class PopupBlurSurfaceGeometry {
     }
 
     get_transformed_clip(actor) {
-        if (!actor.has_clip)
-            return null;
+        let clip_x = 0;
+        let clip_y = 0;
+        let clip_width = 0;
+        let clip_height = 0;
 
-        const [clip_x, clip_y, clip_width, clip_height] = actor.get_clip();
+        if (actor.has_clip) {
+            [clip_x, clip_y, clip_width, clip_height] = actor.get_clip();
+        } else if (actor.clip_to_allocation || (actor.get_clip_to_allocation && actor.get_clip_to_allocation())) {
+            clip_x = 0;
+            clip_y = 0;
+            clip_width = actor.width;
+            clip_height = actor.height;
+        } else {
+            return null;
+        }
+
         if (clip_width <= 0 || clip_height <= 0)
             return null;
 
