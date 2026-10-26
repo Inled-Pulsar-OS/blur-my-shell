@@ -788,3 +788,19 @@
 .bms-popup-background-light .keyboard-key.shift-key-uppercase:hover {
   background-color: rgba(0, 0, 0, 0.28);
 }
+
+/* Pulsar OS floating pill popovers: zero enclosing background */
+.mac-cc-quick-settings,
+.mac-cc-quick-settings .popup-menu-content,
+.popup-menu-boxpointer.mac-cc-quick-settings,
+.quick-settings-menu.mac-cc-quick-settings,
+.quick-settings.mac-cc-quick-settings,
+.mac-nc-datemenu,
+.mac-nc-datemenu .popup-menu-content,
+.popup-menu-boxpointer.mac-nc-datemenu,
+.datemenu-popover.mac-nc-datemenu {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}

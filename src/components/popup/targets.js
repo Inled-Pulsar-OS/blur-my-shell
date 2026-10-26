@@ -6,8 +6,6 @@ const POPUP_STYLE_CLASSES = ['popup-menu', 'quick-toggle-menu-container', 'candi
 const POPUP_TARGET_STYLE_CLASSES = [
     'popup-menu-content', 'quick-settings', 'quick-toggle-menu', 'notification-banner',
     'candidate-popup-content', 'screenshot-ui-panel', 'bms-keyboard-surface',
-    'mac-tile', 'mac-slider-tile', 'mac-circle', 'mac-media', 'mac-cc-detail',
-    'mac-nc-card', 'mac-nc-notif-card', 'mac-nc-more-notifs-btn', 'quick-toggle',
 ];
 const POPUP_CHILD_STYLE_CLASSES = ['osd-window', 'resize-popup', 'switcher-list', 'workspace-switcher', 'modal-dialog', 'run-dialog', 'clipboard-dialog'];
 const POPUP_DESCENDANT_TARGET_STYLE_CLASSES = [
@@ -21,6 +19,35 @@ const POPUP_DESCENDANT_TARGET_STYLE_CLASSES = [
     'datemenu-popover',
 ];
 
+const PILL_CONTAINER_CLASSES = [
+    'quick-settings',
+    'quick-settings-menu',
+    'mac-cc-quick-settings',
+    'mac-cc',
+    'datemenu-popover',
+    'mac-nc-datemenu',
+    'mac-nc-sidebar',
+    'mac-nc-scroll',
+    'mac-nc-content',
+    'mac-nc-widgets',
+    'mac-nc-section',
+    'mac-nc-row',
+    'mac-row',
+    'mac-col',
+];
+
+const PILL_STYLE_CLASSES = [
+    'mac-tile',
+    'mac-slider-tile',
+    'mac-circle',
+    'mac-media',
+    'mac-cc-detail',
+    'mac-subview',
+    'mac-nc-card',
+    'mac-nc-notif-card',
+    'mac-nc-more-notifs-btn',
+];
+
 export const POPUP_BACKGROUND_STYLES = ['bms-popup-background-transparent', 'bms-popup-background-light', 'bms-popup-background-dark'];
 export const POPUP_SURFACE_STYLES = POPUP_BACKGROUND_STYLES.map(
     style => style.replace('bms-popup-background-', 'bms-popup-surface-')
@@ -30,7 +57,7 @@ export const POPUP_CORNER_RADII = [
     {
         key: 'quick-settings-corner-radius',
         property: 'QUICK_SETTINGS_CORNER_RADIUS',
-        style_classes: ['mac-tile', 'mac-slider-tile', 'mac-circle', 'mac-media', 'mac-cc-detail', 'mac-nc-card', 'quick-settings', 'screenshot-ui-panel'],
+        style_classes: ['mac-tile', 'mac-slider-tile', 'mac-circle', 'mac-media', 'mac-cc-detail', 'mac-subview', 'mac-nc-card', 'quick-settings', 'screenshot-ui-panel'],
     },
     {
         key: 'submenu-corner-radius',
@@ -100,16 +127,16 @@ export const PopupBlurTargets = class PopupBlurTargets {
         const targets = new Set();
         const box = actor._delegate?.box;
 
-        if (this.prefers_descendant_targets(actor) || this.prefers_descendant_targets(box)) {
+        if (this.is_pill_container(actor) || this.is_pill_container(box) || this.prefers_descendant_targets(actor) || this.prefers_descendant_targets(box)) {
             this.find_target_children(box ?? actor, targets);
             if (targets.size > 0)
                 return targets;
         }
 
-        if (this.has_any_style_class(box, POPUP_TARGET_STYLE_CLASSES))
+        if (box && !this.is_pill_container(box) && this.has_any_style_class(box, POPUP_TARGET_STYLE_CLASSES))
             targets.add(box);
 
-        if (this.is_blur_target_actor(actor))
+        if (!this.is_pill_container(actor) && this.is_blur_target_actor(actor))
             targets.add(actor);
 
         const dialog_layout = actor.dialogLayout;
@@ -119,7 +146,7 @@ export const PopupBlurTargets = class PopupBlurTargets {
         if (targets.size === 0)
             this.find_target_children(actor, targets);
 
-        if (targets.size === 0 && this.has_any_style_class(actor, POPUP_STYLE_CLASSES))
+        if (targets.size === 0 && !this.is_pill_container(actor) && this.has_any_style_class(actor, POPUP_STYLE_CLASSES))
             targets.add(actor);
 
         return targets;
@@ -132,11 +159,11 @@ export const PopupBlurTargets = class PopupBlurTargets {
 
         while (stack.length > 0) {
             const { actor: child, fallback_count } = stack.pop();
-            if (is_internal_actor(child))
+            if (!child || is_internal_actor(child))
                 continue;
 
             if (fallback_count !== null) {
-                if (targets.size === fallback_count && this.is_blur_target_actor(child))
+                if (targets.size === fallback_count && !this.is_pill_container(child) && this.is_blur_target_actor(child))
                     targets.add(child);
                 continue;
             }
@@ -145,7 +172,12 @@ export const PopupBlurTargets = class PopupBlurTargets {
                 continue;
             seen.add(child);
 
-            if (this.prefers_descendant_targets(child)) {
+            if (this.is_pill_target(child)) {
+                targets.add(child);
+                continue;
+            }
+
+            if (this.is_pill_container(child) || this.prefers_descendant_targets(child)) {
                 const children = child.get_children();
                 if (children.length > 0) {
                     stack.push({ actor: child, fallback_count: targets.size });
@@ -154,7 +186,7 @@ export const PopupBlurTargets = class PopupBlurTargets {
                 }
             }
 
-            if (this.is_blur_target_actor(child)) {
+            if (!this.is_pill_container(child) && this.is_blur_target_actor(child)) {
                 targets.add(child);
                 continue;
             }
@@ -168,12 +200,24 @@ export const PopupBlurTargets = class PopupBlurTargets {
             stack.push({ actor: children[index], fallback_count: null });
     }
 
+    is_pill_container(actor) {
+        return this.has_any_style_class(actor, PILL_CONTAINER_CLASSES);
+    }
+
+    is_pill_target(actor) {
+        return this.has_any_style_class(actor, PILL_STYLE_CLASSES);
+    }
+
     prefers_descendant_targets(actor) {
         return this.has_any_style_class(actor, POPUP_DESCENDANT_TARGET_STYLE_CLASSES);
     }
 
     is_blur_target_actor(actor) {
-        return this.has_any_style_class(actor, POPUP_TARGET_STYLE_CLASSES)
+        if (!actor || this.is_pill_container(actor))
+            return false;
+
+        return this.is_pill_target(actor)
+            || this.has_any_style_class(actor, POPUP_TARGET_STYLE_CLASSES)
             || this.has_any_style_class(actor, POPUP_CHILD_STYLE_CLASSES);
     }
 
@@ -186,6 +230,8 @@ export const PopupBlurTargets = class PopupBlurTargets {
     }
 
     has_any_style_class(actor, style_classes) {
+        if (!actor)
+            return false;
         if (!this.style_cache)
             return has_any_style_class(actor, style_classes);
         if (!(actor instanceof St.Widget))
