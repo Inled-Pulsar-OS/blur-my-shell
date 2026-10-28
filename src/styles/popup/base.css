@@ -791,16 +791,42 @@
 
 /* Pulsar OS floating pill popovers: zero enclosing background */
 .mac-cc-quick-settings,
+.mac-cc-quick-settings.popup-menu-content,
 .mac-cc-quick-settings .popup-menu-content,
+.popup-menu-content.mac-cc-quick-settings,
 .popup-menu-boxpointer.mac-cc-quick-settings,
 .quick-settings-menu.mac-cc-quick-settings,
 .quick-settings.mac-cc-quick-settings,
 .mac-nc-datemenu,
+.mac-nc-datemenu.popup-menu-content,
 .mac-nc-datemenu .popup-menu-content,
+.popup-menu-content.mac-nc-datemenu,
 .popup-menu-boxpointer.mac-nc-datemenu,
-.datemenu-popover.mac-nc-datemenu {
+.datemenu-popover.mac-nc-datemenu,
+.datemenu-popover.mac-nc-datemenu.popup-menu-content,
+.datemenu-popover.mac-nc-datemenu .popup-menu-content,
+.bms-popup-background-dark .mac-nc-datemenu,
+.bms-popup-background-dark .mac-nc-datemenu.popup-menu-content,
+.bms-popup-background-dark .mac-nc-datemenu .popup-menu-content,
+.bms-popup-background-dark .popup-menu-boxpointer.mac-nc-datemenu,
+.bms-popup-background-dark .datemenu-popover.mac-nc-datemenu,
+.bms-popup-surface-dark .mac-nc-datemenu,
+.bms-popup-surface-dark .mac-nc-datemenu.popup-menu-content,
+.bms-popup-surface-dark .mac-nc-datemenu .popup-menu-content,
+.bms-popup-surface-dark .popup-menu-boxpointer.mac-nc-datemenu,
+.bms-popup-surface-dark .datemenu-popover.mac-nc-datemenu,
+.bms-popup-background-dark .mac-cc-quick-settings,
+.bms-popup-background-dark .mac-cc-quick-settings.popup-menu-content,
+.bms-popup-background-dark .mac-cc-quick-settings .popup-menu-content,
+.bms-popup-background-dark .popup-menu-boxpointer.mac-cc-quick-settings,
+.bms-popup-surface-dark .mac-cc-quick-settings,
+.bms-popup-surface-dark .mac-cc-quick-settings.popup-menu-content,
+.bms-popup-surface-dark .mac-cc-quick-settings .popup-menu-content,
+.bms-popup-surface-dark .popup-menu-boxpointer.mac-cc-quick-settings {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
+    border-image: none !important;
+    background-image: none !important;
     box-shadow: none !important;
 }

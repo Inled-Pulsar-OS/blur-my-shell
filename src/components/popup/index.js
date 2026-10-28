@@ -130,6 +130,7 @@ export const PopupBlur = class PopupBlur {
 
         if (
             this.targets.is_blur_target_actor(actor)
+            || this.targets.is_pill_container(actor)
             || has_style_class(actor, 'switcher-popup')
             || actor.get_parent() === global.window_group
         )
