@@ -45,6 +45,7 @@ const PILL_STYLE_CLASSES = [
     'mac-subview',
     'mac-nc-card',
     'mac-nc-notif-card',
+    'mac-nc-empty-card',
     'mac-nc-more-notifs-btn',
 ];
 
@@ -72,7 +73,7 @@ export const POPUP_CORNER_RADII = [
     {
         key: 'notification-corner-radius',
         property: 'NOTIFICATION_CORNER_RADIUS',
-        style_classes: ['mac-nc-notif-card', 'mac-nc-more-notifs-btn', 'notification-banner', 'message', 'message-view', 'message-list'],
+        style_classes: ['mac-nc-notif-card', 'mac-nc-empty-card', 'mac-nc-more-notifs-btn', 'notification-banner', 'message', 'message-view', 'message-list'],
     },
     {
         key: 'candidate-corner-radius',

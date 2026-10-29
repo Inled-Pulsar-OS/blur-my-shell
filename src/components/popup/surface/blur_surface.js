@@ -20,7 +20,7 @@ const FULL_GEOMETRY_STYLE_CLASSES = [
     'modal-dialog', 'run-dialog', 'clipboard-dialog',
     'bms-keyboard-surface',
     'mac-tile', 'mac-slider-tile', 'mac-circle', 'mac-media', 'mac-cc-detail',
-    'mac-nc-card', 'mac-nc-notif-card', 'mac-nc-more-notifs-btn',
+    'mac-nc-card', 'mac-nc-notif-card', 'mac-nc-empty-card', 'mac-nc-more-notifs-btn',
 ];
 const HEAVY_SURFACE_STYLE_CLASSES = [
     'datemenu-popover', 'quick-settings', 'modal-dialog',

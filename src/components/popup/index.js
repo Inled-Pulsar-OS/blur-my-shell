@@ -78,15 +78,6 @@ export const PopupBlur = class PopupBlur {
                     this.queue_try_blur(qsMenu.box ?? qsMenu.actor);
             });
         }
-        const dmMenu = Main.panel.statusArea.dateMenu?.menu;
-        if (dmMenu) {
-            if (dmMenu.box)
-                this.track_container(dmMenu.box);
-            this.connections.connect(dmMenu, 'open-state-changed', (_, open) => {
-                if (open)
-                    this.queue_try_blur(dmMenu.box ?? dmMenu.actor);
-            });
-        }
         this.track_container(global.window_group);
         this.track_keyboard();
     }
