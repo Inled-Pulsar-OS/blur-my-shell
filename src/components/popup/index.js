@@ -80,6 +80,22 @@ export const PopupBlur = class PopupBlur {
         }
         this.track_container(global.window_group);
         this.track_keyboard();
+
+        const dm = Main.panel.statusArea.dateMenu?.menu;
+        if (dm) {
+            for (const actor of [dm.actor, dm.box, dm._boxPointer, dm._boxPointer?.bin]) {
+                if (actor && this.surfaces.has(actor))
+                    this.destroy_blur(actor);
+            }
+            this.connections.connect(dm, 'open-state-changed', (_, open) => {
+                if (open) {
+                    for (const actor of [dm.actor, dm.box, dm._boxPointer, dm._boxPointer?.bin]) {
+                        if (actor && this.surfaces.has(actor))
+                            this.destroy_blur(actor);
+                    }
+                }
+            });
+        }
     }
 
     track_container(container) {
@@ -201,6 +217,9 @@ export const PopupBlur = class PopupBlur {
     }
 
     blur_actor(target, root_actor) {
+        if (!target || this.targets.is_nc_container(target))
+            return;
+
         if (this.surfaces.has(target))
             return;
 
@@ -224,7 +243,7 @@ export const PopupBlur = class PopupBlur {
 
     destroy_blurred_ancestors(target) {
         for (let actor = target.get_parent(); actor; actor = actor.get_parent()) {
-            if (this.surfaces.has(actor) && this.targets.prefers_descendant_targets(actor))
+            if (this.surfaces.has(actor) && (this.targets.prefers_descendant_targets(actor) || this.targets.is_nc_container(actor)))
                 this.destroy_blur(actor);
         }
     }

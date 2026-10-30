@@ -1,4 +1,5 @@
 import St from 'gi://St';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { has_any_style_class, is_internal_actor } from './actors.js';
 
@@ -128,26 +129,26 @@ export const PopupBlurTargets = class PopupBlurTargets {
         const targets = new Set();
         const box = actor._delegate?.box;
 
-        if (this.is_pill_container(actor) || this.is_pill_container(box) || this.prefers_descendant_targets(actor) || this.prefers_descendant_targets(box)) {
+        if (this.is_nc_container(actor) || this.is_nc_container(box) || this.is_pill_container(actor) || this.is_pill_container(box) || this.prefers_descendant_targets(actor) || this.prefers_descendant_targets(box)) {
             this.find_target_children(box ?? actor, targets);
-            if (targets.size > 0)
+            if (targets.size > 0 || this.is_nc_container(actor) || this.is_nc_container(box))
                 return targets;
         }
 
-        if (box && !this.is_pill_container(box) && this.has_any_style_class(box, POPUP_TARGET_STYLE_CLASSES))
+        if (box && !this.is_nc_container(box) && !this.is_pill_container(box) && this.has_any_style_class(box, POPUP_TARGET_STYLE_CLASSES))
             targets.add(box);
 
-        if (!this.is_pill_container(actor) && this.is_blur_target_actor(actor))
+        if (!this.is_nc_container(actor) && !this.is_pill_container(actor) && this.is_blur_target_actor(actor))
             targets.add(actor);
 
         const dialog_layout = actor.dialogLayout;
         if (this.has_any_style_class(dialog_layout, POPUP_CHILD_STYLE_CLASSES))
             targets.add(dialog_layout);
 
-        if (targets.size === 0)
+        if (targets.size === 0 && !this.is_nc_container(actor) && !this.is_nc_container(box))
             this.find_target_children(actor, targets);
 
-        if (targets.size === 0 && !this.is_pill_container(actor) && this.has_any_style_class(actor, POPUP_STYLE_CLASSES))
+        if (targets.size === 0 && !this.is_nc_container(actor) && !this.is_pill_container(actor) && this.has_any_style_class(actor, POPUP_STYLE_CLASSES))
             targets.add(actor);
 
         return targets;
@@ -164,7 +165,7 @@ export const PopupBlurTargets = class PopupBlurTargets {
                 continue;
 
             if (fallback_count !== null) {
-                if (targets.size === fallback_count && !this.is_pill_container(child) && this.is_blur_target_actor(child))
+                if (targets.size === fallback_count && !this.is_nc_container(child) && !this.is_pill_container(child) && this.is_blur_target_actor(child))
                     targets.add(child);
                 continue;
             }
@@ -178,7 +179,7 @@ export const PopupBlurTargets = class PopupBlurTargets {
                 continue;
             }
 
-            if (this.is_pill_container(child) || this.prefers_descendant_targets(child)) {
+            if (this.is_nc_container(child) || this.is_pill_container(child) || this.prefers_descendant_targets(child)) {
                 const children = child.get_children();
                 if (children.length > 0) {
                     stack.push({ actor: child, fallback_count: targets.size });
@@ -187,7 +188,7 @@ export const PopupBlurTargets = class PopupBlurTargets {
                 }
             }
 
-            if (!this.is_pill_container(child) && this.is_blur_target_actor(child)) {
+            if (!this.is_nc_container(child) && !this.is_pill_container(child) && this.is_blur_target_actor(child)) {
                 targets.add(child);
                 continue;
             }
@@ -201,8 +202,36 @@ export const PopupBlurTargets = class PopupBlurTargets {
             stack.push({ actor: children[index], fallback_count: null });
     }
 
+    is_nc_container(actor) {
+        if (!actor)
+            return false;
+
+        try {
+            const dm = Main.panel?.statusArea?.dateMenu;
+            if (dm?.menu) {
+                if (actor === dm.menu.actor ||
+                    actor === dm.menu.box ||
+                    actor === dm.menu._boxPointer ||
+                    actor === dm.menu._boxPointer?.bin ||
+                    (dm.menu.actor && dm.menu.actor.contains(actor) && !this.is_pill_target(actor)))
+                    return true;
+            }
+        } catch (e) {}
+
+        return this.has_any_style_class(actor, [
+            'mac-nc-datemenu',
+            'mac-nc-sidebar',
+            'mac-nc-scroll',
+            'mac-nc-content',
+            'mac-nc-widgets',
+            'mac-nc-section',
+            'mac-nc-row',
+            'datemenu-popover',
+        ]);
+    }
+
     is_pill_container(actor) {
-        return this.has_any_style_class(actor, PILL_CONTAINER_CLASSES);
+        return this.is_nc_container(actor) || this.has_any_style_class(actor, PILL_CONTAINER_CLASSES);
     }
 
     is_pill_target(actor) {
@@ -210,11 +239,11 @@ export const PopupBlurTargets = class PopupBlurTargets {
     }
 
     prefers_descendant_targets(actor) {
-        return this.has_any_style_class(actor, POPUP_DESCENDANT_TARGET_STYLE_CLASSES);
+        return this.is_nc_container(actor) || this.has_any_style_class(actor, POPUP_DESCENDANT_TARGET_STYLE_CLASSES);
     }
 
     is_blur_target_actor(actor) {
-        if (!actor || this.is_pill_container(actor))
+        if (!actor || this.is_nc_container(actor) || this.is_pill_container(actor))
             return false;
 
         return this.is_pill_target(actor)
