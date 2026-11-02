@@ -3,23 +3,12 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { has_any_style_class, is_internal_actor } from './actors.js';
 
-const POPUP_STYLE_CLASSES = [
-    'popup-menu', 'quick-toggle-menu-container', 'candidate-popup-boxpointer',
-    'popover', 'popover-boxpointer', 'boxpointer', 'popup-sub-menu',
-];
+const POPUP_STYLE_CLASSES = ['popup-menu', 'quick-toggle-menu-container', 'candidate-popup-boxpointer'];
 const POPUP_TARGET_STYLE_CLASSES = [
     'popup-menu-content', 'quick-settings', 'quick-toggle-menu', 'notification-banner',
     'candidate-popup-content', 'screenshot-ui-panel', 'bms-keyboard-surface',
-    'popover-content', 'dialog-content', 'modal-dialog-content',
 ];
-const POPUP_CHILD_STYLE_CLASSES = [
-    'osd-window', 'resize-popup', 'switcher-list', 'workspace-switcher',
-    'modal-dialog', 'run-dialog', 'clipboard-dialog', 'dialog', 'about-dialog',
-    'pulsaros-about-dialog', 'prompt-dialog', 'end-session-dialog',
-    'audio-selection-dialog', 'access-dialog', 'inhibit-shortcuts-dialog',
-    'keyring-dialog', 'extension-dialog', 'message-dialog', 'polkit-dialog',
-    'network-dialog', 'nm-dialog', 'login-dialog', 'unlock-dialog', 'xdg-dialog',
-];
+const POPUP_CHILD_STYLE_CLASSES = ['osd-window', 'resize-popup', 'switcher-list', 'workspace-switcher', 'modal-dialog', 'run-dialog', 'clipboard-dialog'];
 const POPUP_DESCENDANT_TARGET_STYLE_CLASSES = [
     'switcher-list',
     'mac-cc-quick-settings',
@@ -115,11 +104,7 @@ export const POPUP_CORNER_RADII = [
     {
         key: 'dialog-corner-radius',
         property: 'DIALOG_CORNER_RADIUS',
-        style_classes: [
-            'modal-dialog', 'run-dialog', 'clipboard-dialog', 'dialog', 'about-dialog',
-            'pulsaros-about-dialog', 'prompt-dialog', 'end-session-dialog',
-            'message-dialog', 'polkit-dialog', 'network-dialog',
-        ],
+        style_classes: ['modal-dialog', 'run-dialog', 'clipboard-dialog'],
     },
     {
         key: 'osk-corner-radius',
