@@ -1,4 +1,5 @@
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -123,6 +124,9 @@ export const ApplicationsBlur = class ApplicationsBlur {
     update_all_windows() {
         this.rules.update();
 
+        const all_windows = global.display.list_all_windows ? global.display.list_all_windows() : [];
+        all_windows.forEach(meta_window => this.track_new(meta_window));
+
         for (
             let i = 0;
             i < global.workspace_manager.get_n_workspaces();
@@ -158,6 +162,20 @@ export const ApplicationsBlur = class ApplicationsBlur {
         this.connections.connect(
             meta_window, 'notify::gtk-application-id',
             _ => this.check_blur(meta_window)
+        );
+        this.connections.connect(
+            meta_window, 'notify::appears-focused',
+            _ => {
+                if (!meta_window.blur_actor)
+                    this.check_blur(meta_window);
+            }
+        );
+        this.connections.connect(
+            meta_window, 'first-frame',
+            _ => {
+                if (!meta_window.blur_actor)
+                    this.check_blur(meta_window);
+            }
         );
 
         this.connections.connect(
@@ -304,8 +322,15 @@ export const ApplicationsBlur = class ApplicationsBlur {
     /// Accepts only tracked meta window that is NOT already blurred.
     create_blur_effect(meta_window) {
         const window_actor = meta_window.get_compositor_private();
-        if (!window_actor)
+        if (!window_actor) {
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                if (this.enabled && this.meta_windows.has(meta_window) && !meta_window.blur_actor) {
+                    this.check_blur(meta_window);
+                }
+                return GLib.SOURCE_REMOVE;
+            });
             return;
+        }
 
         let blur_actor, bg_manager;
         let rounded_pipeline = null;
